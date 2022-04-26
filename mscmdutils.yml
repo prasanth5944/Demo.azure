@@ -1,0 +1,10 @@
+---
+- hosts: python_hostname
+
+  tasks:
+
+   - win_get_url:
+        url: https://sabyrepo24eus2.blob.core.windows.net/dms-2021-1-1-0/MsSqlCmdLnUtils.msi?sp=r&st=2022-04-04T12:35:32Z&se=2024-04-04T20:35:32Z&sv=2020-08-04&sr=b&sig=%2F62PQ3YbD%2B4cnzxUCzJ%2BLpApLIyB9gqNYxtHz9uy5JM%3D
+        dest: C:\
+
+   - win_shell: msiexec /i "MsSqlCmdLnUtils.msi" /passive IACCEPTMSSQLCMDLNUTILSLICENSETERMS=YES REBOOT=ReallySuppress
