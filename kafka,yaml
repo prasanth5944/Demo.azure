@@ -1,1 +1,89 @@
+---
+- hosts: python_hostname
 
+  tasks:
+   - name: Set TcpTestSucceeded
+     set_fact:
+        KAFKA_PATH: "F:\\kafka_2.12-2.3.0\\"
+        
+   - win_get_url:
+       url: https://sabyrepo24eus2.blob.core.windows.net/dms-2021-1-1-0/kafka_2.12-2.3.0.zip?sp=r&st=2022-04-21T12:13:23Z&se=2024-04-21T20:13:23Z&sv=2020-08-04&sr=b&sig=Qbpqlo5mohAXQt4FDS4xtokneyrgaqG72hxQEoMTNuM%3D
+       dest: C:\
+
+   - name: Check server directory
+     win_stat:
+        path: "{{KAFKA_PATH}}"
+     register: kafka_location
+   - name: Delete Kafka
+     block:
+       - debug:
+           msg: "WARN: Not stopping kafka... TODO"
+       - win_shell: "sc query ZooKeeper"
+         args:
+           executable: cmd
+         register: ZooKeeper
+         ignore_errors: True
+       - debug: 
+           var: ZooKeeper         
+       - win_shell: "sc query Kafka"
+         args:
+           executable: cmd
+         ignore_errors: True
+         register: Kafka  
+       - debug: 
+           var: Kafka           
+#       - win_shell: 'IS-Kafka-UninstallScript.bat'
+#         args:
+#           executable: cmd
+#           chdir: "{{KAFKA_PATH}}"
+#         register: output
+#         ignore_errors: True
+#       - win_shell: "sc stop ZooKeeper"
+#         args:
+#           executable: cmd
+#         ignore_errors: True
+#       - win_shell: "sc delete ZooKeeper"
+#         args:
+#           executable: cmd
+#         ignore_errors: True
+#         
+#       - name: Delete kafka
+#         win_file:
+#            state: absent
+#            path: "{{KAFKA_PATH}}"
+     when: kafka_location.stat.exists 
+   - name: INSTALL Kafka
+     block:     
+       - name: Untar kafka zip file
+         win_shell: tar -xf C:\kafka_2.12-2.3.0.zip -C F:\
+       
+       - win_get_url:
+           url: https://sabyrepo24eus2.blob.core.windows.net/dms-2021-1-1-0/IS-Kafka-Installer-Script-v2.zip?sp=r&st=2022-04-21T12:28:44Z&se=2024-04-21T20:28:44Z&sv=2020-08-04&sr=b&sig=4WovJQm42%2BkM0mJlX4grWFS2wMJAElW6MVdMkYWSa%2Bk%3D
+           dest: C:\
+
+       - win_shell: tar -xf C:\IS-Kafka-Installer-Script-v2.zip -C F:\kafka_2.12-2.3.0
+
+
+
+         
+       - win_shell: 'IS-Kafka-InstallScript.bat'
+         args:
+           executable: cmd
+           chdir: F:\kafka_2.12-2.3.0\
+         register: output
+         ignore_errors: True
+
+       - debug: 
+           var: output
+
+
+            
+       - win_shell: "Test-NetConnection -ComputerName {{python_hostname}}  -Port 9092"       
+         register: output
+       - name: Set TcpTestSucceeded
+         set_fact:
+            TcpTestSucceeded: "{{output.stdout_lines[7].split('TcpTestSucceeded : ')[1]}}"
+       - debug: 
+           var: TcpTestSucceeded
+         failed_when: TcpTestSucceeded != true
+     when: kafka_location.stat.exists == False 
