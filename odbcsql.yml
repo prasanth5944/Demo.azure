@@ -1,0 +1,13 @@
+---
+- hosts: python_hostname
+
+
+  tasks:
+
+   - win_get_url:
+        url: https://sabyrepo24eus2.blob.core.windows.net/dms-2021-1-1-0/msodbcsql.msi?sp=r&st=2022-04-04T12:28:39Z&se=2024-04-04T20:28:39Z&sv=2020-08-04&sr=b&sig=FiGUcwpwH0oXOwQw0kXUbc0ZHEpMCgsY0CZ63N2o8M0%3D
+        dest: C:\
+
+   - win_shell: cmd.exe /c msiexec /qn /i "c:\msodbcsql.msi" IACCEPTMSODBCSQLLICENSETERMS=YES REBOOT=ReallySuppress
+     ignore_errors: True
+   - win_shell: cmd.exe /c msiexec /qn /i "c:\msodbcsql.msi" IACCEPTMSODBCSQLLICENSETERMS=YES REBOOT=ReallySuppress
