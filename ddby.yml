@@ -1,0 +1,35 @@
+---
+- hosts: python_hostname
+
+  tasks:
+
+    - win_file:
+        path: F:\IS
+        state: directory
+
+
+    - win_get_url:
+        url: https://sabyrepo24eus2.blob.core.windows.net/dms-2021-1-1-0/DataDoctor.zip?sp=r&st=2022-04-05T14:05:05Z&se=2024-04-05T22:05:05Z&sv=2020-08-04&sr=b&sig=M4L1MHt7MJn77qeFjx8aPXOLRFHbH0qxfWnbJA9sa10%3D
+        dest: C:\
+    - win_shell: tar -xf C:\DataDoctor.zip -C F:\IS
+
+
+   
+    - win_shell: (Get-Content 'F:\IS\DataDoctor\config\ddconfig.yaml') -replace "tsistdavkaf004","{{python_hostname}}" | Set-Content 'F:\IS\DataDoctor\config\ddconfig.yaml' -Verbos
+    - win_shell: Add-Content C:\Windows\System32\drivers\etc\hosts "`n10.107.7.5 wn0-kaf-no.fe1zdbbk12xu3fy5zgi3yilphh.cx.internal.cloudapp.net"
+    - win_shell: Add-Content C:\Windows\System32\drivers\etc\hosts "`n10.107.7.19 wn1-kaf-no.fe1zdbbk12xu3fy5zgi3yilphh.cx.internal.cloudapp.net"
+    - win_shell: Add-Content C:\Windows\System32\drivers\etc\hosts "`n10.107.7.14 wn2-kaf-no.fe1zdbbk12xu3fy5zgi3yilphh.cx.internal.cloudapp.net"
+    
+    - win_shell: (Get-Content 'F:\IS\DataDoctor\config\ddconfig.yaml') -replace "dvbd162403001","{{sql_hostname}}" | Set-Content 'F:\IS\DataDoctor\config\ddconfig.yaml' -Verbos
+    - win_shell: (Get-Content 'F:\IS\DataDoctor\config\ddconfig.yaml') -replace "U4BYBRTmQ3TfGBRG","{{sql_pass}}" | Set-Content 'F:\IS\DataDoctor\config\ddconfig.yaml' -Verbos
+    
+   
+
+    - win_shell: (Get-Content 'F:\IS\DataDoctor\config\ddconfig.yaml') -replace "Validation-Topic","{{consumertopic}}" | Set-Content 'F:\IS\DataDoctor\config\ddconfig.yaml' -Verbos
+    - win_shell: (Get-Content 'F:\IS\DataDoctor\config\ddconfig.yaml') -replace "{{consumertopic}}_group_1","Validation-topic_group_1" | Set-Content 'F:\IS\DataDoctor\config\ddconfig.yaml' -Verbos    
+    - win_shell: (Get-Content 'F:\IS\DataDoctor\config\ddconfig.yaml') -replace "Validation-topic_group_1","{{group}}" | Set-Content 'F:\IS\DataDoctor\config\ddconfig.yaml' -Verbos
+    - win_shell: (Get-Content 'F:\IS\DataDoctor\config\ddconfig.yaml') -replace "Transform-topic","{{producertopic}}" | Set-Content 'F:\IS\DataDoctor\config\ddconfig.yaml' -Verbos
+    - win_shell: (Get-Content 'F:\IS\DataDoctor\config\ddconfig.yaml')
+      register: output 
+    - debug :
+         var : output.stdout_lines 
