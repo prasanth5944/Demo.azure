@@ -1,0 +1,19 @@
+---
+- hosts: python_hostname
+
+  tasks:
+
+   - win_file:
+        path: C:\Spark\Downloads
+        state: directory
+   - win_get_url:
+        url: https://sabyrepo24eus2.blob.core.windows.net/dms-2021-1-1-0/spark-2.4.4-bin-hadoop2.6%20.tgz?sp=r&st=2022-04-04T12:23:44Z&se=2024-04-04T20:23:44Z&sv=2020-08-04&sr=b&sig=XdxR%2FdaJxUNkJLK5JEM0nZttuqqTTpukRX%2BXtbRbHEM%3D
+        dest: C:\Spark\Downloads\spark-2.4.4.gz
+        force: no
+   - win_shell: tar -xf C:\Spark\Downloads\spark-2.4.4.gz -C C:\Spark\
+
+   - win_path:
+        state: present
+        name: SPARK_HOME
+        elements: C:\Spark\Spark
+        scope: user
